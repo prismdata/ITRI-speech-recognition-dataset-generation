@@ -8,9 +8,10 @@ Author: Kung-hsiang, Huang, 2018
 #restrict gpu
 import shutil
 import os
+from myutil import *
 import tensorflow as tf
 from tqdm import tqdm
-from util import *
+
 from keras.backend.tensorflow_backend import set_session
 import sys
 import json

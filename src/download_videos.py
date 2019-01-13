@@ -22,7 +22,7 @@ import glob
 
 
 # developer keys for Youtube V3 API
-DEVELOPER_KEY = 'YOUR_API_KEY'
+DEVELOPER_KEY = 'AIzaSyCef_CMcTdQNVV4kpabfi1AfwgRWqivDIE'
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -126,7 +126,6 @@ def download_video(video_id, path="videos", verbose=True):
     try:
         # get video url
         video_url = get_youtube_video_url(video_id)
-
         try:
             video = pafy.new(video_url)
             # get best video format
@@ -144,7 +143,8 @@ def download_video(video_id, path="videos", verbose=True):
             print("- {id} video cannot be downloaded.".format(id=video_id))
             return False
     except Exception as e:
-        print('Failed to download video: {}'.format(e))
+        # print('Failed to download video: {}'.format(e))
+        print (e)
         return False
 
 
@@ -213,13 +213,12 @@ def remove_intermediate_files(dir_):
 def main():
     parser = argparse.ArgumentParser("Script for downloading youtube video")
     parser.add_argument("--thread_count", type=int, default=50)
-    parser.add_argument("--drama_file", type=str, required=True)
-    parser.add_argument("--video_id_file", type=str, required=True)
-    parser.add_argument("--videos_dir", type=str, required=True)
-    parser.add_argument("--audios_dir", type=str, required=True)
+    parser.add_argument("--drama_file", type=str, default='../mandarin_drama_list.txt', required=False)
+    parser.add_argument("--video_id_file", type=str, default='../video_ids.txt', required=False)
+    parser.add_argument("--videos_dir", type=str, default='/Users/prismdata/Documents/prismdata/ml_spark/ITRI-speech-recognition-dataset-generation/data/ITRI-create-speech-recognition-dataset/mandarin/videos/',required=False)
+    parser.add_argument("--audios_dir", type=str, default='/Users/prismdata/Documents/prismdata/ml_spark/ITRI-speech-recognition-dataset-generation/data/ITRI-create-speech-recognition-dataset/mandarin/audios/', required=False)
     args = parser.parse_args()
-    
-    
+
     os.makedirs(args.videos_dir, exist_ok=True)
     os.makedirs(args.audios_dir, exist_ok=True)
     
@@ -252,13 +251,17 @@ def main():
             parallel = Parallel(video_threads, backend="threading", verbose=10)
             
             #download video
-            parallel(delayed(download_video)(video_id, path=args.videos_dir) for video_id in video_ids)
+            parallel(delayed(download_video)(video_id, path=args.videos_dir) for video_id in video_ids)#error point
+            # for video_id in video_ids:
+            #     download_video(video_id, path=args.videos_dir)
             
             # multi-processing to speed up
             parallel = Parallel(audio_threads, backend="threading", verbose=10)
 
+            print('extract audio')
             # extract audio
             parallel(delayed(extract_audio)(video_id, args.videos_dir, args.audios_dir) for video_id in video_ids)
+            print('extract audio finish')
         
             
     except Exception as e:
